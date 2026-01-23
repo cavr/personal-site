@@ -1,39 +1,328 @@
 ---
 import { getCollection } from 'astro:content';
-
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-import ContactCTA from '../components/ContactCTA.astro';
-import PortfolioPreview from '../components/PortfolioPreview.astro';
-import Hero from '../components/Hero.astro';
-import Grid from '../components/Grid.astro';
 
 const projects = (await getCollection('work')).sort(
 	(a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()
 );
 ---
 
-<BaseLayout
-	title="My Work | Carlos Villanueva"
-	description="Learn about Carlos Villanueva's most recent projects"
->
-	<div class="stack gap-20">
-		<main class="wrapper stack gap-8">
-			<Hero
-				title="My Work"
-				tagline="See my most recent projects below to get an idea of my past experience."
-				align="start"
-			/>
-			<Grid variant="offset">
-				{
-					projects.map((project) => (
-						<li>
-							<PortfolioPreview project={project} />
-						</li>
-					))
-				}
-			</Grid>
-		</main>
-		<ContactCTA />
-	</div>
+<BaseLayout title="Work | Carlos Villanueva" description="Portfolio of projects and work experience">
+	<!-- Navigation -->
+	<nav class="nav">
+		<div class="nav-container">
+			<a href="/personal-site/" class="nav-logo">
+				<span class="logo-bracket">{</span>
+				<span class="logo-text">CV</span>
+				<span class="logo-bracket">}</span>
+			</a>
+			<a href="/personal-site/" class="back-link">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+				<span>Back to Home</span>
+			</a>
+		</div>
+	</nav>
+
+	<main class="main">
+		<div class="container">
+			<header class="page-header">
+				<span class="section-number">03</span>
+				<h1>// All Projects</h1>
+				<p class="page-description">A collection of projects I've worked on throughout my career.</p>
+			</header>
+
+			<div class="work-grid stagger">
+				{projects.map((project, index) => (
+					<a href={`/personal-site/work/${project.slug}`} class="work-card">
+						<div class="work-card-image">
+							<img
+								src={project.data.img}
+								alt={project.data.img_alt || project.data.title}
+								loading="lazy"
+							/>
+							<div class="work-card-overlay">
+								<span class="view-project">View Project</span>
+							</div>
+						</div>
+						<div class="work-card-content">
+							<span class="work-card-number">{String(index + 1).padStart(2, '0')}</span>
+							<h2>{project.data.title}</h2>
+							<p>{project.data.description}</p>
+							<div class="work-card-meta">
+								<span class="work-card-year">{new Date(project.data.publishDate).getFullYear()}</span>
+								<div class="work-card-tags">
+									{project.data.tags.slice(0, 3).map(tag => (
+										<span class="work-tag">{tag}</span>
+									))}
+								</div>
+							</div>
+						</div>
+					</a>
+				))}
+			</div>
+		</div>
+	</main>
+
+	<!-- Footer -->
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-content">
+				<p class="footer-text">
+					<span class="terminal-text">Designed & Built by Carlos Villanueva</span>
+				</p>
+				<p class="footer-copyright">
+					&copy; {new Date().getFullYear()} All rights reserved.
+				</p>
+			</div>
+		</div>
+	</footer>
 </BaseLayout>
+
+<style>
+	.nav {
+		position: sticky;
+		top: 0;
+		z-index: var(--z-nav);
+		background: rgba(10, 10, 15, 0.9);
+		backdrop-filter: blur(10px);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.nav-container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: var(--space-4) var(--space-6);
+	}
+
+	.nav-logo {
+		font-family: var(--font-mono);
+		font-size: var(--text-xl);
+		font-weight: 700;
+		color: var(--text-primary);
+		text-decoration: none;
+		display: flex;
+		align-items: center;
+		gap: 2px;
+	}
+
+	.logo-bracket {
+		color: var(--accent-primary);
+	}
+
+	.back-link {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+		text-decoration: none;
+		transition: color var(--transition-fast);
+	}
+
+	.back-link:hover {
+		color: var(--accent-primary);
+	}
+
+	.main {
+		padding: var(--space-16) 0;
+		min-height: calc(100vh - 200px);
+	}
+
+	.page-header {
+		margin-bottom: var(--space-12);
+	}
+
+	.section-number {
+		display: block;
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--accent-primary);
+		margin-bottom: var(--space-2);
+	}
+
+	.page-header h1 {
+		font-size: clamp(2rem, 5vw, 3rem);
+		margin-bottom: var(--space-4);
+	}
+
+	.page-description {
+		font-size: var(--text-lg);
+		color: var(--text-secondary);
+		max-width: 600px;
+	}
+
+	.work-grid {
+		display: grid;
+		gap: var(--space-8);
+	}
+
+	.work-card {
+		display: grid;
+		background: var(--gradient-card);
+		border: 1px solid var(--border-color);
+		border-radius: var(--radius-lg);
+		overflow: hidden;
+		text-decoration: none;
+		transition: all var(--transition-base);
+	}
+
+	.work-card:hover {
+		border-color: var(--accent-primary);
+		box-shadow: var(--glow-primary);
+		transform: translateY(-4px);
+	}
+
+	.work-card-image {
+		position: relative;
+		aspect-ratio: 16/9;
+		overflow: hidden;
+	}
+
+	.work-card-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform var(--transition-slow);
+	}
+
+	.work-card:hover .work-card-image img {
+		transform: scale(1.05);
+	}
+
+	.work-card-overlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 255, 136, 0.1);
+		opacity: 0;
+		transition: opacity var(--transition-base);
+	}
+
+	.work-card:hover .work-card-overlay {
+		opacity: 1;
+	}
+
+	.view-project {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--accent-primary);
+		padding: var(--space-2) var(--space-4);
+		background: var(--bg-primary);
+		border: 1px solid var(--accent-primary);
+		border-radius: var(--radius-sm);
+	}
+
+	.work-card-content {
+		padding: var(--space-6);
+	}
+
+	.work-card-number {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--accent-primary);
+	}
+
+	.work-card-content h2 {
+		font-size: var(--text-2xl);
+		margin: var(--space-2) 0 var(--space-3);
+		color: var(--text-primary);
+	}
+
+	.work-card-content p {
+		font-size: var(--text-base);
+		margin-bottom: var(--space-4);
+		color: var(--text-secondary);
+	}
+
+	.work-card-meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: var(--space-4);
+	}
+
+	.work-card-year {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--accent-secondary);
+	}
+
+	.work-card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+	}
+
+	.work-tag {
+		padding: var(--space-1) var(--space-2);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		background: var(--bg-secondary);
+		border-radius: var(--radius-sm);
+	}
+
+	@media (min-width: 768px) {
+		.work-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.work-card {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.work-card-image {
+			aspect-ratio: auto;
+		}
+
+		.work-card:nth-child(even) .work-card-image {
+			order: 2;
+		}
+	}
+
+	.footer {
+		padding: var(--space-8) var(--space-6);
+		border-top: 1px solid var(--border-color);
+	}
+
+	.footer-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
+		text-align: center;
+	}
+
+	.footer-text {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+	}
+
+	.terminal-text::before {
+		content: '> ';
+		color: var(--accent-primary);
+		opacity: 0.6;
+	}
+
+	.footer-copyright {
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+	}
+
+	@media (min-width: 768px) {
+		.footer-content {
+			flex-direction: row;
+			justify-content: space-between;
+		}
+	}
+</style>

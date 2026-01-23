@@ -1,20 +1,11 @@
 ---
 import { type CollectionEntry, getCollection } from 'astro:content';
-
 import BaseLayout from '../../layouts/BaseLayout.astro';
-
-import ContactCTA from '../../components/ContactCTA.astro';
-import Hero from '../../components/Hero.astro';
-import Icon from '../../components/Icon.astro';
-import Pill from '../../components/Pill.astro';
 
 interface Props {
 	entry: CollectionEntry<'work'>;
 }
 
-// This is a dynamic route that generates a page for every Markdown file in src/content/
-// Read more about dynamic routes and this `getStaticPaths` function in the Astro docs:
-// https://docs.astro.build/en/core-concepts/routing/#dynamic-routes
 export async function getStaticPaths() {
 	const work = await getCollection('work');
 	return work.map((entry) => ({
@@ -27,125 +18,364 @@ const { entry } = Astro.props;
 const { Content } = await entry.render();
 ---
 
-<BaseLayout title={entry.data.title} description={entry.data.description}>
-	<div class="stack gap-20">
-		<div class="stack gap-15">
-			<header>
-				<div class="wrapper stack gap-2">
-					<a class="back-link" href="/personal-site/work/"><Icon icon="arrow-left" /> Work</a>
-					<Hero title={entry.data.title} align="start">
-						<div class="details">
-							<div class="tags">
-								{entry.data.tags.map((t) => <Pill>{t}</Pill>)}
-							</div>
-							<p class="description">{entry.data.description}</p>
-						</div>
-					</Hero>
-				</div>
-			</header>
-			<main class="wrapper">
-				<div class="stack gap-10 content">
-					{entry.data.img && <img src={entry.data.img} alt={entry.data.img_alt || ''} />}
-					<div class="content">
-						<Content />
+<BaseLayout title={`${entry.data.title} | Carlos Villanueva`} description={entry.data.description}>
+	<!-- Navigation -->
+	<nav class="nav">
+		<div class="nav-container">
+			<a href="/personal-site/" class="nav-logo">
+				<span class="logo-bracket">{</span>
+				<span class="logo-text">CV</span>
+				<span class="logo-bracket">}</span>
+			</a>
+			<a href="/personal-site/work/" class="back-link">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+				<span>All Projects</span>
+			</a>
+		</div>
+	</nav>
+
+	<main class="main">
+		<article class="container">
+			<!-- Project Header -->
+			<header class="project-header">
+				<div class="project-meta">
+					<span class="project-year">{new Date(entry.data.publishDate).getFullYear()}</span>
+					<div class="project-tags">
+						{entry.data.tags.map(tag => (
+							<span class="tag">{tag}</span>
+						))}
 					</div>
 				</div>
-			</main>
+				<h1 class="project-title">{entry.data.title}</h1>
+				<p class="project-description">{entry.data.description}</p>
+			</header>
+
+			<!-- Project Image -->
+			{entry.data.img && (
+				<div class="project-image">
+					<img src={entry.data.img} alt={entry.data.img_alt || entry.data.title} />
+				</div>
+			)}
+
+			<!-- Project Content -->
+			<div class="project-content">
+				<Content />
+			</div>
+
+			<!-- Navigation -->
+			<div class="project-nav">
+				<a href="/personal-site/work/" class="nav-btn">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+					<span>View All Projects</span>
+				</a>
+				<a href="/personal-site/#contact" class="nav-btn primary">
+					<span>Get In Touch</span>
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+				</a>
+			</div>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-content">
+				<p class="footer-text">
+					<span class="terminal-text">Designed & Built by Carlos Villanueva</span>
+				</p>
+				<p class="footer-copyright">
+					&copy; {new Date().getFullYear()} All rights reserved.
+				</p>
+			</div>
 		</div>
-		<ContactCTA />
-	</div>
+	</footer>
 </BaseLayout>
 
 <style>
-	header {
-		padding-bottom: 2.5rem;
-		border-bottom: 1px solid var(--gray-800);
+	.nav {
+		position: sticky;
+		top: 0;
+		z-index: var(--z-nav);
+		background: rgba(10, 10, 15, 0.9);
+		backdrop-filter: blur(10px);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.nav-container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: var(--space-4) var(--space-6);
+	}
+
+	.nav-logo {
+		font-family: var(--font-mono);
+		font-size: var(--text-xl);
+		font-weight: 700;
+		color: var(--text-primary);
+		text-decoration: none;
+		display: flex;
+		align-items: center;
+		gap: 2px;
+	}
+
+	.logo-bracket {
+		color: var(--accent-primary);
 	}
 
 	.back-link {
-		display: none;
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+		text-decoration: none;
+		transition: color var(--transition-fast);
 	}
 
-	.details {
+	.back-link:hover {
+		color: var(--accent-primary);
+	}
+
+	.main {
+		padding: var(--space-16) 0;
+	}
+
+	.project-header {
+		max-width: 800px;
+		margin-bottom: var(--space-12);
+	}
+
+	.project-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-4);
+		margin-bottom: var(--space-4);
+	}
+
+	.project-year {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--accent-secondary);
+		padding: var(--space-1) var(--space-3);
+		background: rgba(0, 212, 255, 0.1);
+		border: 1px solid rgba(0, 212, 255, 0.3);
+		border-radius: var(--radius-sm);
+	}
+
+	.project-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+	}
+
+	.tag {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--accent-primary);
+		padding: var(--space-1) var(--space-3);
+		background: rgba(0, 255, 136, 0.1);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		border-radius: var(--radius-sm);
+	}
+
+	.project-title {
+		font-size: clamp(2rem, 6vw, 3.5rem);
+		line-height: 1.1;
+		margin-bottom: var(--space-4);
+	}
+
+	.project-description {
+		font-size: var(--text-xl);
+		color: var(--text-secondary);
+		line-height: 1.6;
+	}
+
+	.project-image {
+		margin-bottom: var(--space-12);
+		border-radius: var(--radius-lg);
+		overflow: hidden;
+		border: 1px solid var(--border-color);
+	}
+
+	.project-image img {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+
+	.project-content {
+		max-width: 800px;
+		margin-bottom: var(--space-16);
+	}
+
+	.project-content :global(h1),
+	.project-content :global(h2),
+	.project-content :global(h3),
+	.project-content :global(h4),
+	.project-content :global(h5),
+	.project-content :global(h6) {
+		color: var(--text-primary);
+		margin-top: var(--space-8);
+		margin-bottom: var(--space-4);
+	}
+
+	.project-content :global(h2) {
+		font-size: var(--text-2xl);
+		padding-bottom: var(--space-2);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.project-content :global(h3) {
+		font-size: var(--text-xl);
+	}
+
+	.project-content :global(p) {
+		color: var(--text-secondary);
+		line-height: 1.8;
+		margin-bottom: var(--space-4);
+	}
+
+	.project-content :global(a) {
+		color: var(--accent-primary);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		transition: color var(--transition-fast);
+	}
+
+	.project-content :global(a:hover) {
+		color: var(--accent-secondary);
+	}
+
+	.project-content :global(ul),
+	.project-content :global(ol) {
+		color: var(--text-secondary);
+		padding-left: var(--space-6);
+		margin-bottom: var(--space-4);
+	}
+
+	.project-content :global(li) {
+		margin-bottom: var(--space-2);
+	}
+
+	.project-content :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+		color: var(--accent-primary);
+		background: var(--bg-secondary);
+		padding: 0.2em 0.4em;
+		border-radius: var(--radius-sm);
+	}
+
+	.project-content :global(pre) {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border-color);
+		border-radius: var(--radius-md);
+		padding: var(--space-4);
+		overflow-x: auto;
+		margin-bottom: var(--space-4);
+	}
+
+	.project-content :global(pre code) {
+		background: none;
+		padding: 0;
+	}
+
+	.project-content :global(blockquote) {
+		border-left: 3px solid var(--accent-primary);
+		padding-left: var(--space-4);
+		margin: var(--space-6) 0;
+		font-style: italic;
+		color: var(--text-secondary);
+	}
+
+	.project-content :global(img) {
+		max-width: 100%;
+		height: auto;
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border-color);
+		margin: var(--space-4) 0;
+	}
+
+	.project-nav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-4);
+		padding-top: var(--space-8);
+		border-top: 1px solid var(--border-color);
+	}
+
+	.nav-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-6);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+		background: transparent;
+		border: 1px solid var(--border-color);
+		border-radius: var(--radius-sm);
+		text-decoration: none;
+		transition: all var(--transition-base);
+	}
+
+	.nav-btn:hover {
+		color: var(--accent-primary);
+		border-color: var(--accent-primary);
+		box-shadow: var(--glow-primary);
+	}
+
+	.nav-btn.primary {
+		background: var(--gradient-primary);
+		border: none;
+		color: var(--bg-primary);
+	}
+
+	.nav-btn.primary:hover {
+		box-shadow: var(--glow-primary);
+		transform: translateY(-2px);
+		color: var(--bg-primary);
+	}
+
+	.footer {
+		padding: var(--space-8) var(--space-6);
+		border-top: 1px solid var(--border-color);
+	}
+
+	.footer-content {
 		display: flex;
 		flex-direction: column;
-		padding: 0.5rem;
-		gap: 1.5rem;
-		justify-content: space-between;
 		align-items: center;
+		gap: var(--space-2);
+		text-align: center;
 	}
 
-	.tags {
-		display: flex;
-		gap: 0.5rem;
+	.footer-text {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
 	}
 
-	.description {
-		font-size: var(--text-lg);
-		max-width: 54ch;
+	.terminal-text::before {
+		content: '> ';
+		color: var(--accent-primary);
+		opacity: 0.6;
 	}
 
-	.content {
-		max-width: 65ch;
-		margin-inline: auto;
+	.footer-copyright {
+		font-size: var(--text-xs);
+		color: var(--text-muted);
 	}
 
-	.content > :global(* + *) {
-		margin-top: 1rem;
-	}
-
-	.content :global(h1),
-	.content :global(h2),
-	.content :global(h3),
-	.content :global(h4),
-	.content :global(h5) {
-		margin: 1.5rem 0;
-	}
-
-	.content :global(img) {
-		border-radius: 1.5rem;
-		box-shadow: var(--shadow-sm);
-		background: var(--gradient-subtle);
-		border: 1px solid var(--gray-800);
-	}
-
-	.content :global(blockquote) {
-		font-size: var(--text-lg);
-		font-family: var(--font-brand);
-		font-weight: 600;
-		line-height: 1.1;
-		padding-inline-start: 1.5rem;
-		border-inline-start: 0.25rem solid var(--accent-dark);
-		color: var(--gray-0);
-	}
-
-	.back-link,
-	.content :global(a) {
-		text-decoration: 1px solid underline transparent;
-		text-underline-offset: 0.25em;
-		transition: text-decoration-color var(--theme-transition);
-	}
-
-	.back-link:hover,
-	.back-link:focus,
-	.content :global(a:hover),
-	.content :global(a:focus) {
-		text-decoration-color: currentColor;
-	}
-
-	@media (min-width: 50em) {
-		.back-link {
-			display: block;
-			align-self: flex-start;
-		}
-
-		.details {
+	@media (min-width: 768px) {
+		.footer-content {
 			flex-direction: row;
-			gap: 2.5rem;
-		}
-
-		.content :global(blockquote) {
-			font-size: var(--text-2xl);
+			justify-content: space-between;
 		}
 	}
 </style>

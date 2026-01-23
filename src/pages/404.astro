@@ -1,31 +1,219 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CallToAction from '../components/CallToAction.astro';
-import Hero from '../components/Hero.astro';
-import Icon from '../components/Icon.astro';
 ---
 
-<BaseLayout title="Page Not Found | Carlos Villanueva" description="The page you're looking for doesn't exist.">
-	<div class="stack gap-20">
-		<main class="wrapper stack gap-8">
-			<Hero
-				title="Page Not Found"
-				tagline="Sorry, the page you're looking for doesn't exist or has been moved."
-				align="center"
-			/>
-			<div class="cta">
-				<CallToAction href="/personal-site/">
-					<Icon icon="arrow-left" size="1.2em" />
-					Back to Home
-				</CallToAction>
+<BaseLayout title="404 - Page Not Found | Carlos Villanueva" description="The page you're looking for doesn't exist.">
+	<main class="error-page">
+		<div class="container">
+			<div class="error-content">
+				<div class="terminal-window">
+					<div class="terminal-header">
+						<span class="terminal-dot red"></span>
+						<span class="terminal-dot yellow"></span>
+						<span class="terminal-dot green"></span>
+						<span class="terminal-title">~/error</span>
+					</div>
+					<div class="terminal-body">
+						<p class="terminal-line">
+							<span class="prompt">$</span>
+							<span class="command">cat /page</span>
+						</p>
+						<p class="error-output">cat: /page: No such file or directory</p>
+						<p class="terminal-line">
+							<span class="prompt">$</span>
+							<span class="command">echo $ERROR_CODE</span>
+						</p>
+						<h1 class="error-code">404</h1>
+						<p class="terminal-line">
+							<span class="prompt">$</span>
+							<span class="command">echo "Page not found"</span>
+						</p>
+						<p class="error-message">The page you're looking for doesn't exist or has been moved.</p>
+					</div>
+				</div>
+
+				<div class="error-actions">
+					<a href="/personal-site/" class="btn btn-primary">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+						<span>Go Home</span>
+					</a>
+					<a href="/personal-site/work/" class="btn">
+						<span>View Projects</span>
+					</a>
+				</div>
+
+				<div class="glitch-effect"></div>
 			</div>
-		</main>
-	</div>
+		</div>
+	</main>
 </BaseLayout>
 
 <style>
-	.cta {
+	.error-page {
+		min-height: 100vh;
 		display: flex;
+		align-items: center;
 		justify-content: center;
+		padding: var(--space-8);
+	}
+
+	.error-content {
+		max-width: 600px;
+		width: 100%;
+		position: relative;
+	}
+
+	.terminal-window {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border-color);
+		border-radius: var(--radius-lg);
+		overflow: hidden;
+		animation: fade-in-up 0.8s ease-out;
+	}
+
+	.terminal-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-4);
+		background: var(--bg-tertiary);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.terminal-dot {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+	}
+
+	.terminal-dot.red { background: #ff5f56; }
+	.terminal-dot.yellow { background: #ffbd2e; }
+	.terminal-dot.green { background: #27c93f; }
+
+	.terminal-title {
+		margin-left: var(--space-4);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+	}
+
+	.terminal-body {
+		padding: var(--space-6);
+	}
+
+	.terminal-line {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+		margin-bottom: var(--space-2);
+	}
+
+	.prompt {
+		color: var(--accent-primary);
+		margin-right: var(--space-2);
+	}
+
+	.command {
+		color: var(--accent-secondary);
+	}
+
+	.error-output {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--accent-error);
+		margin-bottom: var(--space-4);
+	}
+
+	.error-code {
+		font-size: clamp(4rem, 15vw, 8rem);
+		font-weight: 700;
+		line-height: 1;
+		background: var(--gradient-text);
+		background-clip: text;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		margin: var(--space-2) 0 var(--space-4);
+		text-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+	}
+
+	.error-message {
+		font-size: var(--text-lg);
+		color: var(--text-secondary);
+		margin-top: var(--space-2);
+	}
+
+	.error-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-4);
+		margin-top: var(--space-8);
+		animation: fade-in-up 0.8s ease-out 0.2s both;
+	}
+
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-6);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		border: 1px solid var(--border-color);
+		border-radius: var(--radius-sm);
+		background: transparent;
+		color: var(--text-primary);
+		text-decoration: none;
+		transition: all var(--transition-base);
+	}
+
+	.btn:hover {
+		border-color: var(--accent-primary);
+		box-shadow: var(--glow-primary);
+		color: var(--accent-primary);
+	}
+
+	.btn-primary {
+		background: var(--gradient-primary);
+		border: none;
+		color: var(--bg-primary);
+	}
+
+	.btn-primary:hover {
+		box-shadow: var(--glow-primary);
+		transform: translateY(-2px);
+		color: var(--bg-primary);
+	}
+
+	.glitch-effect {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		opacity: 0.03;
+		background: repeating-linear-gradient(
+			0deg,
+			transparent,
+			transparent 2px,
+			var(--accent-primary) 2px,
+			var(--accent-primary) 4px
+		);
+		animation: scan-effect 8s linear infinite;
+	}
+
+	@keyframes scan-effect {
+		0% { transform: translate(-50%, -50%) translateY(-100%); }
+		100% { transform: translate(-50%, -50%) translateY(100%); }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.glitch-effect {
+			animation: none;
+			display: none;
+		}
 	}
 </style>
