@@ -24,6 +24,7 @@ const { href } = Astro.props;
 		background: var(--gradient-accent-orange);
 		box-shadow: var(--shadow-md);
 		white-space: nowrap;
+		transition: box-shadow 0.3s ease, transform 0.15s ease;
 	}
 
 	@media (min-width: 20em) {
@@ -47,10 +48,28 @@ const { href } = Astro.props;
 		background-color: hsla(var(--gray-999-basis), 0.3);
 	}
 
+	a:hover,
+	a:focus {
+		box-shadow: var(--shadow-md), var(--accent-glow);
+	}
+
+	a:active {
+		transform: scale(0.98);
+	}
+
 	@media (min-width: 50em) {
 		a {
 			padding: 1.125rem 2.5rem;
 			font-size: var(--text-xl);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		a {
+			transition: none;
+		}
+		a:active {
+			transform: none;
 		}
 	}
 </style>

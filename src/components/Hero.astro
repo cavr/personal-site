@@ -8,9 +8,9 @@ interface Props {
 const { align = 'center', tagline, title } = Astro.props;
 ---
 
-<div class:list={['hero stack gap-4', align]}>
+<div class:list={['hero stack gap-4 animate-fade-in', align]}>
 	<div class="stack gap-2">
-		<h1 class="title">{title}</h1>
+		<h1 class="title gradient-text">{title}</h1>
 		{tagline && <p class="tagline">{tagline}</p>}
 	</div>
 	<slot />
@@ -20,6 +20,8 @@ const { align = 'center', tagline, title } = Astro.props;
 	.hero {
 		font-size: var(--text-lg);
 		text-align: center;
+		opacity: 0;
+		animation: fade-in 0.6s ease-out 0.1s forwards;
 	}
 
 	.title,
@@ -31,6 +33,24 @@ const { align = 'center', tagline, title } = Astro.props;
 	.title {
 		font-size: var(--text-3xl);
 		color: var(--gray-0);
+	}
+
+	.title.gradient-text {
+		background: linear-gradient(
+			135deg,
+			var(--gray-0) 0%,
+			var(--accent-light) 50%,
+			var(--gray-0) 100%
+		);
+		background-clip: text;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-size: 200% 200%;
+	}
+
+	.tagline {
+		opacity: 0;
+		animation: fade-in 0.5s ease-out 0.3s forwards;
 	}
 
 	@media (min-width: 50em) {
@@ -49,6 +69,14 @@ const { align = 'center', tagline, title } = Astro.props;
 
 		.title {
 			font-size: var(--text-5xl);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero,
+		.tagline {
+			animation: none;
+			opacity: 1;
 		}
 	}
 </style>

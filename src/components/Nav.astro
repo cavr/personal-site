@@ -210,6 +210,13 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 		position: absolute;
 		left: 0;
 		right: 0;
+		animation: fade-in 0.3s ease-out forwards;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.menu-content {
+			animation: none;
+		}
 	}
 
 	.nav-items {
@@ -260,12 +267,20 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 		padding: var(--icon-padding);
 		text-decoration: none;
 		color: var(--accent-dark);
-		transition: color var(--theme-transition);
+		transition: color var(--theme-transition), transform 0.2s ease;
 	}
 
 	.social:hover,
 	.social:focus {
 		color: var(--accent-text-over);
+		transform: scale(1.1) rotate(5deg);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.social:hover,
+		.social:focus {
+			transform: none;
+		}
 	}
 
 	.theme-toggle {
@@ -316,11 +331,30 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 		}
 
 		.link {
+			position: relative;
 			padding: 0.5rem 1rem;
 			border-radius: 999rem;
 			transition:
 				color var(--theme-transition),
 				background-color var(--theme-transition);
+		}
+
+		.link::after {
+			content: '';
+			position: absolute;
+			bottom: 0.25rem;
+			left: 50%;
+			width: 0;
+			height: 2px;
+			background: var(--accent-regular);
+			border-radius: 1px;
+			transition: width 0.3s ease, left 0.3s ease;
+		}
+
+		.link:hover::after,
+		.link:focus::after {
+			width: calc(100% - 2rem);
+			left: 1rem;
 		}
 
 		.link:hover,
@@ -332,6 +366,16 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 		.link.active {
 			color: var(--accent-text-over);
 			background-color: var(--accent-regular);
+		}
+
+		.link.active::after {
+			display: none;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.link::after {
+				transition: none;
+			}
 		}
 
 		.menu-footer {

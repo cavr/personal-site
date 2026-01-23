@@ -100,6 +100,14 @@ const projects = (await getCollection('work'))
 		object-position: top;
 		border-radius: 1.5rem;
 		box-shadow: var(--shadow-md);
+		opacity: 0;
+		animation: fade-in 0.6s ease-out 0.3s forwards;
+		transition: transform 0.3s ease, box-shadow 0.3s ease;
+	}
+
+	.hero img:hover {
+		transform: scale(1.02);
+		box-shadow: var(--shadow-lg);
 	}
 
 	@media (min-width: 50em) {
@@ -164,10 +172,17 @@ const projects = (await getCollection('work'))
 		max-width: 50ch;
 		font-size: var(--text-md);
 		color: var(--gray-300);
+		opacity: 0;
+		animation: fade-in 0.5s ease-out forwards;
 	}
 
 	.section-header h3 {
 		font-size: var(--text-2xl);
+	}
+
+	.gallery {
+		opacity: 0;
+		animation: fade-in 0.6s ease-out 0.2s forwards;
 	}
 
 	@media (min-width: 50em) {
@@ -223,6 +238,18 @@ const projects = (await getCollection('work'))
 		.mention-card {
 			border-radius: 1.5rem;
 			height: 9.5rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero img,
+		.section-header,
+		.gallery {
+			animation: none;
+			opacity: 1;
+		}
+		.hero img:hover {
+			transform: none;
 		}
 	}
 </style>

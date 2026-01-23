@@ -26,18 +26,36 @@ const currentYear = () => new Date().getFullYear();
 		text-align: center;
 		color: var(--gray-400);
 		font-size: var(--text-sm);
+		opacity: 0;
+		animation: fade-in 0.5s ease-out 0.2s forwards;
 	}
 
 	footer a {
+		position: relative;
 		color: var(--gray-400);
-		text-decoration: 1px solid underline transparent;
-		text-underline-offset: 0.25em;
-		transition: text-decoration-color var(--theme-transition);
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+
+	footer a::after {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		left: 0;
+		width: 0;
+		height: 1px;
+		background: currentColor;
+		transition: width 0.3s ease;
 	}
 
 	footer a:hover,
 	footer a:focus {
-		text-decoration-color: currentColor;
+		color: var(--gray-200);
+	}
+
+	footer a:hover::after,
+	footer a:focus::after {
+		width: 100%;
 	}
 
 	.group {
@@ -51,6 +69,14 @@ const currentYear = () => new Date().getFullYear();
 		justify-content: center;
 		gap: 1rem;
 		flex-wrap: wrap;
+	}
+
+	.socials a {
+		transition: color 0.2s ease, transform 0.2s ease;
+	}
+
+	.socials a:hover {
+		transform: translateY(-2px);
 	}
 
 	@media (min-width: 50em) {
@@ -68,6 +94,20 @@ const currentYear = () => new Date().getFullYear();
 
 		.socials {
 			justify-content: flex-end;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		footer {
+			animation: none;
+			opacity: 1;
+		}
+		footer a::after,
+		.socials a {
+			transition: none;
+		}
+		.socials a:hover {
+			transform: none;
 		}
 	}
 </style>

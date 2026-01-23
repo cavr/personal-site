@@ -15,6 +15,7 @@ import Icon from './Icon.astro';
 
 <style>
 	aside {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -24,9 +25,30 @@ import Icon from './Icon.astro';
 		padding: 5rem 1.5rem;
 		background-color: var(--gray-999_40);
 		box-shadow: var(--shadow-sm);
+		overflow: hidden;
+		opacity: 0;
+		animation: fade-in 0.6s ease-out 0.1s forwards;
+	}
+
+	aside::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 200%;
+		height: 200%;
+		transform: translate(-50%, -50%);
+		background: radial-gradient(
+			circle at center,
+			var(--accent-overlay) 0%,
+			transparent 50%
+		);
+		opacity: 0.3;
+		pointer-events: none;
 	}
 
 	h2 {
+		position: relative;
 		font-size: var(--text-xl);
 		text-align: center;
 		max-width: 15ch;
@@ -43,6 +65,13 @@ import Icon from './Icon.astro';
 		h2 {
 			font-size: var(--text-3xl);
 			text-align: left;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		aside {
+			animation: none;
+			opacity: 1;
 		}
 	}
 </style>

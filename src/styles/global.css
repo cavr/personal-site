@@ -22,6 +22,7 @@
 	--accent-overlay: hsla(280, 89%, 67%, 0.33);
 	--accent-subtle-overlay: var(--accent-overlay);
 	--accent-text-over: var(--gray-999);
+	--accent-glow: 0 0 25px var(--accent-overlay);
 
 	--link-color: var(--accent-regular);
 
@@ -94,6 +95,7 @@
 	--accent-overlay: hsla(280, 89%, 67%, 0.33);
 	--accent-subtle-overlay: hsla(281, 81%, 36%, 0.33);
 	--accent-text-over: var(--gray-0);
+	--accent-glow: 0 0 25px var(--accent-overlay);
 
 	--link-color: var(--accent-dark);
 
@@ -113,6 +115,16 @@
 		0px 7px 7px rgba(255, 255, 255, 0.05), 0px 2px 4px rgba(255, 255, 255, 0.06);
 	--shadow-lg: 0px 62px 25px rgba(255, 255, 255, 0.01), 0px 35px 21px rgba(255, 255, 255, 0.05),
 		0px 16px 16px rgba(255, 255, 255, 0.1), 0px 4px 9px rgba(255, 255, 255, 0.12);
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
 }
 
 html,
@@ -154,6 +166,7 @@ h5 {
 	font-family: var(--font-brand);
 	font-weight: 600;
 	color: var(--gray-100);
+	letter-spacing: -0.02em;
 }
 
 h1 {
@@ -251,5 +264,77 @@ h5 {
 	}
 	.lg\:gap-48 {
 		gap: 12rem;
+	}
+}
+
+/* Animation Keyframes */
+@keyframes fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fade-in-up {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes scale-in {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+/* Animation utilities */
+.animate-fade-in {
+	animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+	animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+	animation: scale-in 0.5s ease-out forwards;
+}
+
+/* Staggered children animations */
+.stagger > * {
+	opacity: 0;
+	animation: fade-in 0.5s ease-out forwards;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+	.animate-fade-in,
+	.animate-fade-in-up,
+	.animate-scale-in,
+	.stagger > * {
+		animation: none;
+		opacity: 1;
+		transform: none;
 	}
 }

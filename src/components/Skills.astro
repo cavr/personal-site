@@ -2,29 +2,29 @@
 import Icon from './Icon.astro';
 ---
 
-<section class="box skills">
-	<div class="stack gap-2 lg:gap-4">
+<section class="box skills stagger">
+	<div class="skill-card stack gap-2 lg:gap-4">
 		<Icon icon="terminal-window" color="var(--accent-regular)" size="2.5rem" gradient />
 		<h2>Software Engineer</h2>
 		<p>
 			Building scalable and efficient web applications with a focus on performance, accessibility, and user experience. Proficient in React, Node.js, and modern JavaScript/TypeScript.
 		</p>
 	</div>
-	<div class="stack gap-2 lg:gap-4">
+	<div class="skill-card stack gap-2 lg:gap-4">
 		<Icon icon="code" color="var(--accent-regular)" size="2.5rem" gradient />
 		<h2>Programming</h2>
 		<p>
 			More than 10 years of experience in programming, with a strong foundation in algorithms, data structures, and software design principles. Being pragmatic and efficient is my motto.
 		</p>
 	</div>
-	<div class="stack gap-2 lg:gap-4">
+	<div class="skill-card stack gap-2 lg:gap-4">
 		<Icon icon="code" color="var(--accent-regular)" size="2.5rem" gradient />
 		<h2>Devex</h2>
 		<p>
 			Experienced in setting up and maintaining development environments, CI/CD pipelines, and cloud infrastructure. Familiar with Docker, Kubernetes, AWS, and other DevOps tools and practices.
 		</p>
 	</div>
-	<div class="stack gap-2 lg:gap-4">
+	<div class="skill-card stack gap-2 lg:gap-4">
 		<Icon icon="codepen-logo" color="var(--accent-regular)" size="2.5rem" gradient />
 		<h2>Team work</h2>
 		<p>
@@ -48,6 +48,26 @@ import Icon from './Icon.astro';
 		gap: 3rem;
 	}
 
+	.skill-card {
+		padding: 1.5rem;
+		border-radius: 0.75rem;
+		transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+	}
+
+	.skill-card:hover {
+		transform: translateY(-4px);
+		background-color: var(--gray-999_40);
+		box-shadow: var(--accent-glow);
+	}
+
+	.skill-card :global(svg) {
+		transition: transform 0.3s ease;
+	}
+
+	.skill-card:hover :global(svg) {
+		transform: scale(1.15);
+	}
+
 	.skills h2 {
 		font-size: var(--text-lg);
 	}
@@ -68,8 +88,26 @@ import Icon from './Icon.astro';
 			gap: 5rem;
 		}
 
+		.skill-card {
+			padding: 2rem;
+			border-radius: 1rem;
+		}
+
 		.skills h2 {
 			font-size: var(--text-2xl);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.skill-card,
+		.skill-card :global(svg) {
+			transition: none;
+		}
+		.skill-card:hover {
+			transform: none;
+		}
+		.skill-card:hover :global(svg) {
+			transform: none;
 		}
 	}
 </style>
