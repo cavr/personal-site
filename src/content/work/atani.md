@@ -1,22 +1,30 @@
 ---
 title: Atani
-publishDate: 2020-03-02 00:00:00
-img: /assets/stock-1.jpg
-img_alt: A close-up of a computer screen with code on it
+publishDate: 2020-11-01 00:00:00
+img: /personal-site/assets/stock-1.jpg
+img_alt: Cryptocurrency trading dashboard with real-time market data
 description: |
-    We designed and developed a new platform for cryptocurrency trading.
+  All-in-one cryptocurrency trading platform with secure multi-exchange
+  trading and portfolio management across 20+ exchanges.
 tags:
-    - Dev
-    - Cryptocurrency
-    - Real Time
+  - React
+  - Crypto
+  - DApps
 ---
 
 ## Atani
 
-> We designed and developed a new platform for cryptocurrency trading.
+Senior Software Engineer at Atani, a secure multi-exchange trading and portfolio management platform for cryptocurrency traders.
 
-Atani is a new platform for cryptocurrency trading. We designed and developed the platform from the ground up, with a focus on real-time data and a user-friendly interface.
+### Technical Highlights
 
+- **Multi-exchange Platform**: Built secure trading app supporting 20+ cryptocurrency exchanges
+- **DApp Development**: Developed and launched a decentralized exchange (DApp) on web
+- **Platform Migration**: Led migration from Electron desktop app to web browser
+- **Exchange Aggregator**: Developed and delivered a non-custodial exchange aggregator
+- **Product Leadership**: Participated in Go/No-go product decision making
+- **Team Growth**: Contributed to hiring pipeline and team building
 
-### Cryptocurrency trading
+### Impact
 
+Helped build a comprehensive crypto trading platform that simplified portfolio management across multiple exchanges, from desktop application to modern web platform.

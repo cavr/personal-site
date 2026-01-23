@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CallToAction from '../components/CallToAction.astro';
+import Hero from '../components/Hero.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<BaseLayout title="Page Not Found | Carlos Villanueva" description="The page you're looking for doesn't exist.">
+	<div class="stack gap-20">
+		<main class="wrapper stack gap-8">
+			<Hero
+				title="Page Not Found"
+				tagline="Sorry, the page you're looking for doesn't exist or has been moved."
+				align="center"
+			/>
+			<div class="cta">
+				<CallToAction href="/personal-site/">
+					<Icon icon="arrow-left" size="1.2em" />
+					Back to Home
+				</CallToAction>
+			</div>
+		</main>
+	</div>
+</BaseLayout>
+
+<style>
+	.cta {
+		display: flex;
+		justify-content: center;
+	}
+</style>
