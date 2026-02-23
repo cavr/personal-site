@@ -1,0 +1,606 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Play | Carlos Villanueva" description="NES emulator — load your own ROM and play">
+
+	<!-- Navigation -->
+	<nav class="nav">
+		<div class="nav-container">
+			<a href="/personal-site/" class="nav-logo">
+				<span class="logo-bracket">{</span>
+				<span class="logo-text">CV</span>
+				<span class="logo-bracket">}</span>
+			</a>
+			<a href="/personal-site/" class="back-link">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+				<span>Back to Home</span>
+			</a>
+		</div>
+	</nav>
+
+	<main class="main">
+
+		<!-- ── Loader screen ─────────────────────────────── -->
+		<div id="loader-screen" class="loader-screen">
+			<div class="loader-inner">
+
+				<div class="terminal-badge">play.nes</div>
+
+				<h1 class="title">
+					<span class="title-line">INSERT</span>
+					<span class="title-line accent">CARTRIDGE</span>
+				</h1>
+
+				<!-- Default game -->
+				<div class="default-game">
+					<div class="default-game-info">
+						<span class="default-label">// default game</span>
+						<span class="default-name">Nomolos</span>
+						<span class="default-meta">NES platformer homebrew &middot; free &amp; open source</span>
+					</div>
+					<button id="play-default-btn" class="play-btn">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+						Press Start
+					</button>
+				</div>
+
+				<div class="divider">
+					<span class="divider-text">or load your own ROM</span>
+				</div>
+
+				<label class="file-btn" id="file-label">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+					</svg>
+					Browse files
+					<input type="file" id="rom-input" accept=".nes,.zip">
+				</label>
+
+				<div id="drop-zone" class="drop-zone">
+					<span class="drop-label">drag &amp; drop here</span>
+					<span class="drop-hint">Supports .nes and .zip</span>
+				</div>
+
+				<div class="controls-legend">
+					<p class="legend-title">// keyboard controls</p>
+					<div class="legend-grid">
+						<span class="key">←→</span><span class="key-desc">Move</span>
+						<span class="key">Z</span><span class="key-desc">Jump</span>
+						<span class="key">X</span><span class="key-desc">Action</span>
+						<span class="key">Enter</span><span class="key-desc">Start</span>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<!-- ── Emulator screen ───────────────────────────── -->
+		<div id="emu-screen" class="emu-screen" style="display:none">
+			<div class="emu-topbar">
+				<button id="back-btn" class="topbar-btn">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+					Load different ROM
+				</button>
+				<span id="game-name" class="game-name"></span>
+			</div>
+
+			<div class="crt-wrap">
+				<div class="crt-frame">
+					<div class="scanlines" aria-hidden="true"></div>
+					<div id="game"></div>
+				</div>
+			</div>
+
+			<div class="controls-legend emu-legend">
+				<div class="legend-grid legend-grid--wide">
+					<span class="key">←↑↓→</span><span class="key-desc">D-Pad</span>
+					<span class="key">Z</span><span class="key-desc">A</span>
+					<span class="key">X</span><span class="key-desc">B</span>
+					<span class="key">Enter</span><span class="key-desc">Start</span>
+					<span class="key">Shift</span><span class="key-desc">Select</span>
+					<span class="key">F1</span><span class="key-desc">Save state</span>
+					<span class="key">F2</span><span class="key-desc">Load state</span>
+					<span class="key">F</span><span class="key-desc">Fullscreen</span>
+				</div>
+			</div>
+		</div>
+
+	</main>
+</BaseLayout>
+
+<script>
+	const DEFAULT_ROM_URL  = 'https://raw.githubusercontent.com/retrobrews/nes-games/master/nomolos.nes';
+	const DEFAULT_ROM_NAME = 'Nomolos: Storming the CASAmenti';
+
+	const romInput        = document.getElementById('rom-input')       as HTMLInputElement;
+	const dropZone        = document.getElementById('drop-zone')       as HTMLElement;
+	const loaderScr       = document.getElementById('loader-screen')   as HTMLElement;
+	const emuScr          = document.getElementById('emu-screen')      as HTMLElement;
+	const backBtn         = document.getElementById('back-btn')        as HTMLButtonElement;
+	const gameNameEl      = document.getElementById('game-name')       as HTMLElement;
+	const playDefaultBtn  = document.getElementById('play-default-btn') as HTMLButtonElement;
+
+	function launchEmulator(romUrl: string, name: string) {
+		// Set EmulatorJS globals before injecting the loader
+		(window as any).EJS_player        = '#game';
+		(window as any).EJS_core          = 'nes';
+		(window as any).EJS_pathtodata    = 'https://cdn.emulatorjs.org/stable/data/';
+		(window as any).EJS_gameUrl       = romUrl;
+		(window as any).EJS_startOnLoaded = true;
+		(window as any).EJS_color         = '#00ff88';
+		(window as any).EJS_gameName      = name;
+
+		gameNameEl.textContent   = name;
+		loaderScr.style.display  = 'none';
+		emuScr.style.display     = 'flex';
+
+		// Inject loader script
+		const script = document.createElement('script');
+		script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+		document.body.appendChild(script);
+	}
+
+	playDefaultBtn.addEventListener('click', () => {
+		launchEmulator(DEFAULT_ROM_URL, DEFAULT_ROM_NAME);
+	});
+
+	romInput.addEventListener('change', () => {
+		const file = romInput.files?.[0];
+		if (file) launchEmulator(URL.createObjectURL(file), file.name.replace(/\.(nes|zip)$/i, ''));
+	});
+
+	dropZone.addEventListener('dragover', (e) => {
+		e.preventDefault();
+		dropZone.classList.add('drag-over');
+	});
+
+	dropZone.addEventListener('dragleave', () => {
+		dropZone.classList.remove('drag-over');
+	});
+
+	dropZone.addEventListener('drop', (e) => {
+		e.preventDefault();
+		dropZone.classList.remove('drag-over');
+		const file = e.dataTransfer?.files[0];
+		if (file) launchEmulator(URL.createObjectURL(file), file.name.replace(/\.(nes|zip)$/i, ''));
+	});
+
+	backBtn.addEventListener('click', () => {
+		window.location.reload();
+	});
+</script>
+
+<style>
+	/* ── Nav ─────────────────────────────────────────── */
+	.nav {
+		position: sticky;
+		top: 0;
+		z-index: var(--z-nav);
+		background: rgba(10, 10, 15, 0.95);
+		backdrop-filter: blur(10px);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.nav-container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: var(--space-4) var(--space-6);
+	}
+
+	.nav-logo {
+		font-family: var(--font-mono);
+		font-size: var(--text-xl);
+		font-weight: 700;
+		color: var(--text-primary);
+		text-decoration: none;
+		display: flex;
+		align-items: center;
+		gap: 2px;
+	}
+
+	.logo-bracket { color: var(--accent-primary); }
+
+	.back-link {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+		text-decoration: none;
+		transition: color var(--transition-fast);
+	}
+
+	.back-link:hover { color: var(--accent-primary); }
+
+	/* ── Main layout ─────────────────────────────────── */
+	.main {
+		min-height: calc(100vh - 65px);
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* ── Loader screen ───────────────────────────────── */
+	.loader-screen {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--space-8) var(--space-6);
+	}
+
+	.loader-inner {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-6);
+		max-width: 560px;
+		width: 100%;
+		text-align: center;
+	}
+
+	.terminal-badge {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--accent-primary);
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		padding: var(--space-1) var(--space-3);
+		border-radius: 9999px;
+		letter-spacing: 0.08em;
+	}
+
+	.title {
+		display: flex;
+		flex-direction: column;
+		gap: 0.1em;
+		margin: 0;
+	}
+
+	.title-line {
+		display: block;
+		font-family: var(--font-mono);
+		font-size: clamp(2.8rem, 10vw, 5.5rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1;
+		color: var(--text-primary);
+	}
+
+	.title-line.accent {
+		color: var(--accent-primary);
+		text-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
+		animation: pulse 2.5s ease-in-out infinite;
+	}
+
+	@keyframes pulse {
+		0%, 100% { text-shadow: 0 0 40px rgba(0, 255, 136, 0.5); }
+		50%       { text-shadow: 0 0 80px rgba(0, 255, 136, 0.9); }
+	}
+
+	.subtitle {
+		font-size: var(--text-base);
+		color: var(--text-secondary);
+		line-height: 1.7;
+		margin: 0;
+	}
+
+	.subtitle code {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--accent-secondary);
+		background: rgba(0, 212, 255, 0.08);
+		padding: 1px 5px;
+		border-radius: var(--radius-sm);
+	}
+
+	/* ── Default game card ───────────────────────────── */
+	.default-game {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+		background: var(--gradient-card);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: var(--radius-lg);
+		padding: var(--space-4) var(--space-6);
+	}
+
+	.default-game-info {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		text-align: left;
+	}
+
+	.default-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--accent-primary);
+		opacity: 0.7;
+	}
+
+	.default-name {
+		font-family: var(--font-mono);
+		font-size: var(--text-xl);
+		font-weight: 700;
+		color: var(--text-primary);
+	}
+
+	.default-meta {
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+	}
+
+	.play-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-6);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		font-weight: 700;
+		color: var(--bg-primary);
+		background: var(--accent-primary);
+		border: none;
+		border-radius: var(--radius-md);
+		cursor: pointer;
+		white-space: nowrap;
+		transition: all var(--transition-fast);
+	}
+
+	.play-btn:hover {
+		background: #00e87c;
+		box-shadow: 0 0 24px rgba(0, 255, 136, 0.5);
+		transform: translateY(-2px);
+	}
+
+	/* ── Divider ─────────────────────────────────────── */
+	.divider {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		gap: var(--space-4);
+	}
+
+	.divider::before,
+	.divider::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: var(--border-color);
+	}
+
+	.divider-text {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		white-space: nowrap;
+	}
+
+	/* File button */
+	.file-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-8);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--bg-primary);
+		background: var(--accent-primary);
+		border: none;
+		border-radius: var(--radius-md);
+		cursor: pointer;
+		transition: all var(--transition-fast);
+		font-weight: 600;
+	}
+
+	.file-btn:hover {
+		background: #00e87c;
+		box-shadow: 0 0 24px rgba(0, 255, 136, 0.5);
+		transform: translateY(-2px);
+	}
+
+	.file-btn input[type="file"] {
+		display: none;
+	}
+
+	/* Drop zone */
+	.drop-zone {
+		width: 100%;
+		padding: var(--space-8) var(--space-6);
+		border: 2px dashed var(--border-color);
+		border-radius: var(--radius-lg);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
+		cursor: pointer;
+		transition: all var(--transition-base);
+	}
+
+	.drop-zone:hover,
+	.drop-zone.drag-over {
+		border-color: var(--accent-primary);
+		background: rgba(0, 255, 136, 0.04);
+		box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+	}
+
+	.drop-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+	}
+
+	.drop-hint {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+	}
+
+	/* Controls legend */
+	.controls-legend {
+		width: 100%;
+	}
+
+	.legend-title {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--accent-primary);
+		margin: 0 0 var(--space-3);
+		text-align: left;
+		opacity: 0.7;
+	}
+
+	.legend-grid {
+		display: grid;
+		grid-template-columns: auto 1fr auto 1fr;
+		gap: var(--space-2) var(--space-4);
+		align-items: center;
+	}
+
+	.legend-grid--wide {
+		grid-template-columns: repeat(4, auto 1fr);
+	}
+
+	@media (max-width: 640px) {
+		.legend-grid--wide {
+			grid-template-columns: auto 1fr auto 1fr;
+		}
+	}
+
+	.key {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-primary);
+		background: var(--bg-tertiary);
+		border: 1px solid var(--border-color);
+		padding: 2px var(--space-2);
+		border-radius: var(--radius-sm);
+		white-space: nowrap;
+		text-align: center;
+	}
+
+	.key-desc {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+	}
+
+	/* ── Emulator screen ─────────────────────────────── */
+	.emu-screen {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: var(--space-4) var(--space-4) var(--space-8);
+		gap: var(--space-4);
+	}
+
+	.emu-topbar {
+		width: 100%;
+		max-width: 880px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+	}
+
+	.topbar-btn {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+		background: none;
+		border: 1px solid var(--border-color);
+		border-radius: var(--radius-md);
+		padding: var(--space-2) var(--space-4);
+		cursor: pointer;
+		transition: all var(--transition-fast);
+	}
+
+	.topbar-btn:hover {
+		color: var(--accent-primary);
+		border-color: var(--accent-primary);
+	}
+
+	.game-name {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	/* CRT frame */
+	.crt-wrap {
+		width: 100%;
+		max-width: 880px;
+	}
+
+	.crt-frame {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		border: 2px solid rgba(0, 255, 136, 0.4);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		box-shadow:
+			0 0 0 1px rgba(0, 255, 136, 0.1),
+			0 0 40px rgba(0, 255, 136, 0.15),
+			inset 0 0 60px rgba(0, 0, 0, 0.4);
+		background: #000;
+	}
+
+	/* Scanlines */
+	.scanlines {
+		position: absolute;
+		inset: 0;
+		background: repeating-linear-gradient(
+			to bottom,
+			transparent,
+			transparent 2px,
+			rgba(0, 0, 0, 0.12) 2px,
+			rgba(0, 0, 0, 0.12) 4px
+		);
+		pointer-events: none;
+		z-index: 10;
+		border-radius: inherit;
+	}
+
+	#game {
+		width: 100%;
+		height: 100%;
+	}
+
+	/* EmulatorJS injects an iframe — make it fill the container */
+	:global(#game iframe),
+	:global(#game canvas) {
+		width: 100% !important;
+		height: 100% !important;
+		display: block;
+	}
+
+	/* EmulatorJS loader overlay */
+	:global(.ejs-loading-screen) {
+		border-radius: inherit;
+	}
+
+	.emu-legend {
+		width: 100%;
+		max-width: 880px;
+		text-align: left;
+	}
+
+	.emu-legend .legend-title {
+		text-align: left;
+	}
+</style>
