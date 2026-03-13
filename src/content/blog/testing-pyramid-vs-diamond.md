@@ -180,6 +180,39 @@ Then something changes in the database schema. Or a library updates its behavior
 
 A smaller test suite with real integration tests would have caught it. It runs slower. The CI badge might take an extra two minutes. But when it's green, it means something.
 
+## Tests Should Survive a Refactor
+
+Here's a simple way to know if your tests are giving you real value: **refactor some code and see if the tests break.**
+
+If you rename a private method, move logic into a helper, change how a class is structured internally, swap one implementation for another — and the tests break — those tests were testing implementation details, not behavior. They weren't testing what the system does. They were testing how it does it. And now you can't change how it does it without rewriting the tests.
+
+That's the opposite of what tests are for. Tests are supposed to give you the confidence to refactor safely. If they break every time you touch the internals, they become a tax on change rather than a safety net.
+
+```typescript
+// Testing implementation — breaks on refactor
+it('should call _formatUserName before saving', async () => {
+  const spy = jest.spyOn(service, '_formatUserName');
+  await service.create({ name: 'alice', email: 'alice@example.com' });
+  expect(spy).toHaveBeenCalled();
+});
+
+// Testing behavior — survives any internal refactor
+it('should save the user with a capitalized name', async () => {
+  const user = await service.create({ name: 'alice', email: 'alice@example.com' });
+  expect(user.name).toBe('Alice');
+});
+```
+
+The first test breaks the moment you rename `_formatUserName` or inline the logic somewhere else. The second test doesn't care how the name gets capitalized — it just verifies that it does. You can rewrite the entire internals of `create` and the second test stays green as long as the behavior is correct.
+
+This is the real distinction between a useful test suite and a brittle one. Useful tests describe what the system should do from the outside. Brittle tests describe how it does it from the inside.
+
+**A test that breaks on a refactor without a behavior change isn't protecting you — it's slowing you down.**
+
+The symptom of too many implementation-detail tests is that developers stop refactoring. The cost of updating tests every time you touch code becomes high enough that people just leave the code as it is, even when they know it's wrong. The tests that were supposed to enable change end up preventing it.
+
+When you write a test, ask: if I completely rewrote the internals but kept the observable behavior the same, would this test still pass? If the answer is no, it's probably testing the wrong thing.
+
 ## What to Actually Do
 
 - **Integration test your repositories and services** against real databases. Use testcontainers or a test database. This is your most valuable layer.
