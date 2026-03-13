@@ -153,6 +153,34 @@ And the worst part: most of those transformations do nothing. The fields have th
 
 When something goes wrong — a field is missing, a value is wrong — you have to open each mapper and each class definition to figure out where the data got lost or transformed incorrectly. In a codebase with plain interfaces and plain objects, you trace the data directly. There's nothing in between.
 
+## The Parser Trap
+
+There's a specific failure mode that emerges from having too many transformation layers: by the time data reaches you, it no longer looks like anything in the database. And when something is wrong, you have no idea where the problem was introduced.
+
+Say a field called `created_at` in your database becomes `createdAt` in your entity, then `registrationDate` in your domain model, then `joinedOn` in your response DTO. Every layer renamed it. Now a bug report comes in: "the date is wrong." Where do you look?
+
+```typescript
+// In the database
+{ created_at: '2024-01-15T10:00:00Z' }
+
+// After EntityMapper.toDomain()
+{ createdAt: Date('2024-01-15T10:00:00Z') }
+
+// After DomainMapper.toResponse()
+{ registrationDate: '2024-01-15' }  // ← someone dropped the time here
+
+// After ResponseSerializer.serialize()
+{ joinedOn: '15/01/2024' }  // ← someone changed the format here
+```
+
+The bug could be in any mapper. You open four files, read four transformations, and try to figure out which one ate the time component. Meanwhile the original value in the database was perfectly fine.
+
+This gets worse when mappers instantiate classes, because you can't just `console.log` and see the data — you get a class instance that may have custom `toJSON` behavior, getters that compute values, or private fields that don't show up in the output. What you see in the debugger is not necessarily what the code is working with.
+
+With plain objects flowing through plain functions, the data looks the same at every step. You log it anywhere and you see exactly what it is. There's no transformation layer to suspect, no class instance hiding its internals. The bug surface shrinks dramatically.
+
+The rule of thumb: **if you have to open more than one file to understand what shape your data is in at a given point, there are too many transformations.** Keep the shape consistent. Rename fields once, at the boundary, not at every layer.
+
 ## The Mapper Trap
 
 Mapper classes are another Java import that TypeScript doesn't need. The pattern:
