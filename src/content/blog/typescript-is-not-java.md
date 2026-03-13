@@ -135,6 +135,24 @@ interface CreateOrderInput {
 }
 ```
 
+## Mappers and Instances Make Code Hard to Follow
+
+Before getting into the mapper pattern specifically, there's a broader problem worth naming: when a codebase is full of class instantiations and mappers, tracing data through the system becomes genuinely painful.
+
+You get a request in. By the time it reaches the database, it has been:
+
+1. Parsed into a `CreateUserDto` instance
+2. Passed to the service, which calls `UserMapper.toDomain(dto)` to produce a `UserDomain` instance
+3. Passed to the repository, which calls `UserMapper.toEntity(domain)` to produce a `UserEntity` instance
+4. Saved to the database
+5. Returned as a `UserEntity`, mapped back to `UserDomain`, then mapped to `UserResponseDto`
+
+Five representations of the same data. Four mapping steps. Six files to open to follow one request through the system.
+
+And the worst part: most of those transformations do nothing. The fields have the same names, the same types, the same values. The mapper exists not because the shapes are different but because the pattern demands one.
+
+When something goes wrong — a field is missing, a value is wrong — you have to open each mapper and each class definition to figure out where the data got lost or transformed incorrectly. In a codebase with plain interfaces and plain objects, you trace the data directly. There's nothing in between.
+
 ## The Mapper Trap
 
 Mapper classes are another Java import that TypeScript doesn't need. The pattern:
