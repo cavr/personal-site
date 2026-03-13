@@ -161,6 +161,14 @@ function toUserResponse(user: User): UserResponse {
 
 One function. No class, no instantiation, no ceremony. Easier to test, easier to compose, easier to read.
 
+## A Quick Note Before the Why
+
+I genuinely love Java. Spring Boot is one of the most well-designed frameworks I've worked with — the IoC container, the ecosystem, the way it handles cross-cutting concerns at scale. It's a pleasure to work with for the problems it was built for.
+
+This post isn't a critique of Java or Spring Boot. It's about using each language for what it is. Java is nominally typed, class-based, and the DTO/mapper/service pattern fits it naturally. TypeScript is structurally typed, runs on a dynamic runtime, and fighting that to make it look like Java produces code that's harder to write and harder to maintain — without gaining anything.
+
+Use the language you're in. Don't carry the previous one with you.
+
 ## Why It Happens
 
 People learn Java or C# first. They learn design patterns in a nominally-typed language and those patterns feel like the correct way to structure code — because in that language, they are. When they move to TypeScript, they bring the same instincts.
