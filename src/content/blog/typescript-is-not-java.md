@@ -234,9 +234,9 @@ interface UserResponse {
   email: string;
 }
 
-// user.service.ts — NestJS injectable, plain function logic inside
+// user.repository.ts — NestJS injectable, talks to the database
 @Injectable()
-export class UserService {
+export class UserRepository {
   constructor(private readonly db: PrismaService) {}
 
   async create(input: CreateUserInput): Promise<UserResponse> {
@@ -245,14 +245,25 @@ export class UserService {
   }
 }
 
-// user.controller.ts — NestJS controller, no mapper needed
+// create-user.use-case.ts — business logic, calls the repository
+@Injectable()
+export class CreateUserUseCase {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async execute(input: CreateUserInput): Promise<UserResponse> {
+    // business rules live here — validation, side effects, events, etc.
+    return this.userRepository.create(input);
+  }
+}
+
+// user.controller.ts — thin, just wires HTTP to the use case
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly createUser: CreateUserUseCase) {}
 
   @Post()
   create(@Body() input: CreateUserInput) {
-    return this.userService.create(input);
+    return this.createUser.execute(input);
   }
 }
 ```
