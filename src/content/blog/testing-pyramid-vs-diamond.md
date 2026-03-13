@@ -213,6 +213,35 @@ The symptom of too many implementation-detail tests is that developers stop refa
 
 When you write a test, ask: if I completely rewrote the internals but kept the observable behavior the same, would this test still pass? If the answer is no, it's probably testing the wrong thing.
 
+## You Don't Need to Run the App
+
+One of the underrated benefits of a solid integration test suite: you stop needing to manually boot the application to verify things work.
+
+With unit tests and mocks, you're never really sure. The tests are green but you've been testing your assumptions, not the system. So you run the app, hit the endpoint with Postman or curl, check the response, maybe poke at the database directly. Every change needs a manual verification loop.
+
+With integration tests that hit a real database and exercise the full stack, that loop shrinks dramatically. You make a change, the tests run, they're green — and you actually trust that. Not because you're being optimistic, but because the test just did what you would have done manually: connected to a database, ran the logic, checked the result.
+
+```typescript
+// This test did everything you'd do manually
+it('POST /users should create a user and return 201', async () => {
+  const res = await request(app)
+    .post('/users')
+    .send({ name: 'Alice', email: 'alice@example.com' });
+
+  expect(res.status).toBe(201);
+  expect(res.body.id).toBeDefined();
+  expect(res.body.name).toBe('Alice');
+
+  // also verify it actually landed in the database
+  const user = await db.users.findOne({ email: 'alice@example.com' });
+  expect(user).not.toBeNull();
+});
+```
+
+That test sent a real HTTP request, ran through your real middleware and validation, hit a real database, and confirmed the record exists. There's nothing more to check manually. You've already done it.
+
+The confidence isn't blind — it's earned by the test doing real work. And that's exactly the kind of test suite that lets you deploy on a Friday without holding your breath.
+
 ## What to Actually Do
 
 - **Integration test your repositories and services** against real databases. Use testcontainers or a test database. This is your most valuable layer.
