@@ -173,7 +173,105 @@ Use the language you're in. Don't carry the previous one with you.
 
 People learn Java or C# first. They learn design patterns in a nominally-typed language and those patterns feel like the correct way to structure code — because in that language, they are. When they move to TypeScript, they bring the same instincts.
 
-Framework documentation also plays a role. NestJS, for example, is explicitly modeled on Spring Boot and encourages the class-heavy DTO approach. If you follow the NestJS docs closely, you end up with a Java codebase in TypeScript. That's a deliberate design choice by NestJS, not a property of TypeScript itself.
+Framework documentation also plays a role. NestJS is a great framework — I've used it in production and it's a legitimate choice, especially for teams coming from a backend OOP background or building large APIs that benefit from its structure. The decorator-based controllers, the DI system, the module architecture — it's well thought out and it works.
+
+But NestJS is explicitly modeled on Spring Boot, and if you follow its conventions without thinking, you end up replicating the full Java stack inside it: a DTO class for every request, a mapper for every transformation, an interface for every service just so you can inject a different implementation you'll never actually have. NestJS gives you the tools to do this — it doesn't mean you have to use all of them everywhere.
+
+Even inside NestJS, you can keep things lean. Use classes where the framework requires them (controllers, providers, modules). Use interfaces and plain objects everywhere else. Reach for a class-based DTO when you need `class-validator` decorators. Don't reach for one just because the pattern exists.
+
+The over-engineered NestJS version:
+
+```typescript
+// create-user.dto.ts
+export class CreateUserDto {
+  readonly name: string;
+  readonly email: string;
+}
+
+// user-response.dto.ts
+export class UserResponseDto {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+}
+
+// user.mapper.ts
+export class UserMapper {
+  static toResponse(user: User): UserResponseDto {
+    return new UserResponseDto(user.id, user.name, user.email);
+  }
+}
+
+// user.service.interface.ts
+export interface IUserService {
+  create(dto: CreateUserDto): Promise<UserResponseDto>;
+}
+
+// user.service.ts
+@Injectable()
+export class UserService implements IUserService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async create(dto: CreateUserDto): Promise<UserResponseDto> {
+    const user = await this.userRepository.create(dto);
+    return UserMapper.toResponse(user);
+  }
+}
+```
+
+The same thing, but using NestJS for what it's good at and TypeScript for the rest:
+
+```typescript
+// user.types.ts — plain interfaces, no classes
+interface CreateUserInput {
+  name: string;
+  email: string;
+}
+
+interface UserResponse {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// user.service.ts — NestJS injectable, plain function logic inside
+@Injectable()
+export class UserService {
+  constructor(private readonly db: PrismaService) {}
+
+  async create(input: CreateUserInput): Promise<UserResponse> {
+    const user = await this.db.user.create({ data: input });
+    return { id: user.id, name: user.name, email: user.email };
+  }
+}
+
+// user.controller.ts — NestJS controller, no mapper needed
+@Controller('users')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+
+  @Post()
+  create(@Body() input: CreateUserInput) {
+    return this.userService.create(input);
+  }
+}
+```
+
+Same NestJS. Same DI, same decorators, same module system. Just without the DTO class, the mapper class, and the interface that wraps the service nobody will ever swap out. When you do need validation, that's when a class DTO with decorators earns its place:
+
+```typescript
+// only use a class DTO when you actually need class-validator
+export class CreateUserDto {
+  @IsString()
+  @MinLength(1)
+  name: string;
+
+  @IsEmail()
+  email: string;
+}
+```
+
+Use the class because `class-validator` needs it — not as a default for every piece of data that passes through the app.
 
 There's also a sense that more structure means better architecture. Classes, mappers, and DTOs look organized. They look like someone applied patterns. Interfaces and plain functions look almost too simple. But software that's easy to delete, easy to test, and easy to read isn't simple because no thought went into it — it's simple because the right amount of thought went into it.
 
