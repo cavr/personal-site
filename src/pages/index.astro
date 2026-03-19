@@ -481,6 +481,24 @@ const socials = [
 		gap: var(--space-8);
 	}
 
+	.nav-links.active {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: rgba(10, 10, 15, 0.97);
+		backdrop-filter: blur(10px);
+		border-bottom: 1px solid var(--border-color);
+		padding: var(--space-4) var(--space-6);
+	}
+
+	:global([data-theme="light"]) .nav-links.active {
+		background: rgba(247, 247, 249, 0.97);
+	}
+
 	.nav-link {
 		font-family: var(--font-mono);
 		font-size: var(--text-sm);
@@ -1384,6 +1402,14 @@ const socials = [
 		const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
 		menuBtn.setAttribute('aria-expanded', String(!expanded));
 		navLinks?.classList.toggle('active');
+	});
+
+	// Close menu when a nav link is clicked
+	navLinks?.querySelectorAll('.nav-link').forEach(link => {
+		link.addEventListener('click', () => {
+			navLinks.classList.remove('active');
+			menuBtn?.setAttribute('aria-expanded', 'false');
+		});
 	});
 
 	// Active nav link on scroll
